@@ -1,17 +1,20 @@
 variable "vpc_cidr" {
   type = string
 }
+variable "main_vpc_cidr" {
+  type = string
+}
 variable "name" {
   type = string
 }
 
-variable "public_subnet_count" {
-  type        = number
-  description = "at least 3 as number of az = 3"
-}
-variable "private_subnet_count" {
-  type = number
-}
+# variable "public_subnet_count" {
+#   type        = number
+#   description = "at least 3 as number of az = 3"
+# }
+# variable "private_subnet_count" {
+#   type = number
+# }
 
 # variable "public_cidrs" {
 #   type = list
@@ -23,8 +26,14 @@ variable "private_subnet_count" {
 #variable will not be working as variable do not accept fuctions inside them man 
 
 locals {
+  main_public_cidrs  = [for i in range(1, 255, 2) : cidrsubnet(var.main_vpc_cidr, 8, i)]
+  main_private_cidrs = [for i in range(2, 255, 2) : cidrsubnet(var.main_vpc_cidr, 8, i)]
   public_cidrs  = [for i in range(1, 255, 2) : cidrsubnet(var.vpc_cidr, 8, i)]
   private_cidrs = [for i in range(2, 255, 2) : cidrsubnet(var.vpc_cidr, 8, i)]
+
+  # Creating a public & private subnets in each availability zone
+  public_subnet_count  = length(data.aws_availability_zones.available.names)
+  private_subnet_count = length(data.aws_availability_zones.available.names)
 }
 
 variable "access_ip_v4" {

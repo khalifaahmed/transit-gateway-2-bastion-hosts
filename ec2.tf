@@ -1,24 +1,53 @@
-# # Get latest AMI ID for Amazon Linux2 OS
-# data "aws_ami" "amzlinux2" {
-#   most_recent = true
-#   owners      = ["amazon"]
-#   filter {
-#     name   = "name"
-#     values = ["amzn2-ami-hvm-*-gp2"]
-#   }
-#   filter {
-#     name   = "root-device-type"
-#     values = ["ebs"]
-#   }
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["x86_64"]
-#   }
-# }
+# Get latest AMI ID for Amazon Linux2 OS
+data "aws_ami" "amzlinux2" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-gp2"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+
+# EC2 Instance
+resource "aws_instance" "myec2" {
+  ami                         = data.aws_ami.amzlinux2.id
+  instance_type               = var.instance_type
+  user_data                   = file("${path.module}/app1-install.sh")
+  key_name                    = "terraform_key"
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.private[0].id
+  vpc_security_group_ids      = [aws_security_group.grad_proj_sg["ssh"].id, aws_security_group.grad_proj_sg["http_https"].id, aws_security_group.grad_proj_sg["public"].id] 
+  tags = {
+    "Name" = "${var.name}_ec2"
+  }
+}
+
+# EC2 Instance
+resource "aws_instance" "main" {
+  ami                         = data.aws_ami.amzlinux2.id
+  instance_type               = var.instance_type
+  user_data                   = file("${path.module}/app1-install.sh")
+  key_name                    = "terraform_key"
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.main_private[0].id
+  vpc_security_group_ids      = [aws_security_group.main.id]
+  tags = {
+    "Name" = "main_ec2"
+  }
+}
 
 # # EC2 Instance
 # resource "aws_instance" "myec2" {
@@ -40,6 +69,10 @@
 #   }
 # }
 
+# output "the_pubic_ip" {
+#   value = (var.ec2_count > 0) ? aws_instance.myec2[0].public_ip : ""
+# }
+
 # resource "aws_ami_from_instance" "example" {
 #   name               = "grad-proj-AMI"
 #   source_instance_id = "${aws_instance.myec2[0].id}"
@@ -48,24 +81,42 @@
 #   }
 # }
 
-# data "aws_ami" "ubuntu_ami" {
-#   most_recent = true
-#   owners      = ["amazon"]
-#   filter {
-#     name   = "name"
-#     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+data "aws_ami" "ubuntu_ami" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+# resource "aws_instance" "nexus" {
+#   ami                         = data.aws_ami.ubuntu_ami.id
+#   instance_type               = "t3.small"
+#   #user_data                   = file("${path.module}/my-script.sh")
+#   key_name                    = var.key
+#   associate_public_ip_address = true
+#   subnet_id                   = aws_subnet.public[0].id
+#   vpc_security_group_ids      = [aws_security_group.grad_proj_sg["ssh"].id, aws_security_group.grad_proj_sg["http_https"].id, aws_security_group.grad_proj_sg["public"].id] 
+#   tags = {
+#     "Name" = "nexus-server"
 #   }
-#   filter {
-#     name   = "root-device-type"
-#     values = ["ebs"]
-#   }
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["x86_64"]
+
+#   provisioner "local-exec" {
+#     working_dir = "./nexus"
+#     command = "ansible-playbook --inventory ${self.public_ip}, --user ubuntu --private-key /home/ahmed/Desktop/ansible/ec2-docker/terraform_key_pair.pem  deploy-nexus.yaml"
 #   }
 # }
 

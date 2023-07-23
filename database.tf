@@ -40,5 +40,19 @@ resource "aws_db_instance" "grad_proj_db" {
   password                = "gradproj"
 }
 
+output "db_endpoint" {
+  value = var.db_instance ? aws_db_instance.grad_proj_db[0].endpoint : ""
+}
 
+# output "db_endpoint_2" {
+#   value = aws_db_instance.grad_proj_db[0].endpoint
+#   precondition {
+#     condition     = var.db_instance
+#     error_message = "There is no database."
+#   }
+# }
+# output "db_endpoint_3" {
+#   depends_on = [ aws_db_instance.grad_proj_db ]
+#   value = aws_db_instance.grad_proj_db[0].endpoint
+# }
 

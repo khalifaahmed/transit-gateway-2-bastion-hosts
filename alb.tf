@@ -83,6 +83,10 @@
 # }
 
 
+# output "the_loadbalancer_public_dns" {
+#   value = aws_lb.grad_proj_alb.dns_name
+# }
+
 # #aws ec2 describe-instances --region us-east-2     --query 'Reservations[*].Instances[*].PublicIpAddress'     --output text
 
 
