@@ -8,23 +8,6 @@ variable "name" {
   type = string
 }
 
-# variable "public_subnet_count" {
-#   type        = number
-#   description = "at least 3 as number of az = 3"
-# }
-# variable "private_subnet_count" {
-#   type = number
-# }
-
-# variable "public_cidrs" {
-#   type = list
-#   default = [for i in range(1, 255, 2) : cidrsubnet("10.0.0.0/16", 8, i)]
-# }
-# variable "private_cidrs" {
-#   type = list
-# }
-#variable will not be working as variable do not accept fuctions inside them man 
-
 locals {
   main_public_cidrs  = [for i in range(1, 255, 2) : cidrsubnet(var.main_vpc_cidr, 8, i)]
   main_private_cidrs = [for i in range(2, 255, 2) : cidrsubnet(var.main_vpc_cidr, 8, i)]
@@ -44,48 +27,10 @@ variable "access_ip_v6" {
   type = string
 }
 
-variable "db_subnet_group" {
-  type = bool
-}
-
-variable "db_instance" {
-  type = bool
-}
-
-# variable "public1_subnet_cidr" {
-#   type = string
-# }
-# variable "public2_subnet_cidr" {
-#   type = string
-# }
-# variable "public3_subnet_cidr" {
-#   type = string
-# }
-# variable "private1_subnet_cidr" {
-#   type = string
-# }
-# variable "private2_subnet_cidr" {
-#   type = string
-# }
-# variable "private3_subnet_cidr" {
-#   type = string
-# }
-# variable "az1" {
-#   type = string
-# }
-# variable "az2" {
-#   type = string
-# }
-# variable "az3" {
-#   type = string
-# }
 variable "provider_region" {
   type        = string
   default     = ""
   description = "description"
-}
-variable "ec2_count" {
-  type = number
 }
 variable "instance_type" {
   type    = string
